@@ -1,0 +1,50 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link rel="stylesheet" href="https://unpkg.com/tachyons@4.10.0/css/tachyons.min.css"/>
+  <title>BuildingLink API Demo</title>
+</head>
+<body>
+  <section id="root">
+    <header style="background-color: #3c454f;" class="sans-serif">
+      <div class="mw9 center pa4 pt5-ns ph7-l">
+        <time style="color:whitesmoke;" class="f6 mb2 dib ttu tracked"><small><%= new Date()%></small></time>
+        <h3 class="f2 f1-m f-headline-l measure-narrow lh-title mv0">
+          <span style="background-color: #c92513;"class="lh-copy white pa1 tracked-tight">
+            Your Residents
+          </span>
+        </h3>
+        <% if (residents) { %>
+          <div style="color:whitesmoke;" class="f6 mb2">
+            <strong>access_token:</strong> <%=`${access_token.substring(0, 15)}...${access_token.substring(access_token.length - 16)}`%>
+          </div>
+          <div style="color:whitesmoke;" class="f6 mb2">
+            <strong>refresh_token:</strong> <%=refresh_token%>
+          </div>
+          <div style="color:whitesmoke;" class="f6 mb2">
+            Click <a href=<%=`http://localhost:3000/refresh?refresh_token=${refresh_token}`%>>here</a> to refresh your access token.
+          </div>
+          
+        <% } else { %>
+          <p style="color:whitesmoke;" class="f6 mb2 ttu tracked">
+            Your OAuth info will appear here once you log in.
+          </p>
+        <% } %>
+      </div>
+    </header>
+    <% if (residents) { %>
+      <ul class="list pa3 pa5-ns">
+      <% residents.forEach(resident => { %>
+        <li class="dib mr2 f4 f2-ns b db pa2 link dim mid-gray"><%= resident.FirstName %></li>
+      <% }) %>
+    <% } else { %>
+      <div class="tc pa6">
+        <div class="f5 f3-ns lh-copy measure georgia">The list of residents will populate here once you <a href=<%=`${baseAuthUri}?response_type=code&client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&scope=${scope}`%>>log in.</a></div>
+      </div>
+    <% } %>
+    </section>
+  </section>
+</body>
+</html>

@@ -1,0 +1,21 @@
+{
+  "name": "qs-express",
+  "version": "1.0.0",
+  "description": "A simple express server, built to consume BuildingLink's APIs",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "author": "Ricardo Colon-Medina",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.18.0",
+    "ejs": "^2.6.1",
+    "express": "^4.16.4",
+    "qs": "^6.6.0"
+  },
+  "devDependencies": {
+    "dotenv": "^6.2.0"
+  }
+}
