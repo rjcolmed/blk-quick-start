@@ -9,18 +9,19 @@ const port = '3000';
 
 // Environment variables
 const {
-  CLIENT_ID,
-  ACCESS_CONTROL_SUB_KEY,
-  DEVICE_ID,
-  REDIRECT_URI,
-  SECRET,
+  client_id,
+  access_control_sub_key,
+  device_id,
+  redirect_uri,
+  refresh_uri,
+  client_secret,
 } = process.env;
 
-// Endpoints and scope
+// Endpoints, scope, misc variables
 const baseAuthUri = 'https://auth.buildinglink.com/connect/authorize';
-const scope = encodeURIComponent('api_identity offline_access access_control_write');
 const tokenEndpoint = 'https://auth.buildinglink.com/connect/token';
-const requestUri = 'https://api.buildinglink.com/AccessControl/PropEmp/v1/Residents';
+const url = 'https://api.buildinglink.com/AccessControl/PropEmp/v1/Residents';
+const scope = encodeURIComponent('api_identity offline_access access_control_write');
 
 // Express set-up
 app.set('view engine', 'ejs');
@@ -34,19 +35,21 @@ app.get('/', (_req, res) => {
     refresh_token: null,
     baseAuthUri,
     scope,
-    REDIRECT_URI,
-    CLIENT_ID,
+    redirect_uri,
+    refresh_uri,
+    client_id,
   });
 });
 
 app.get('/callback', (req, res) => {
+  const { code } = req.query;
 
   const data = qs.stringify({
     grant_type: 'authorization_code',
-    code: req.query.code,
-    redirect_uri: REDIRECT_URI,
-    client_id: CLIENT_ID,
-    client_secret: SECRET
+    code,
+    redirect_uri,
+    client_id,
+    client_secret,
   });
 
   axios.post(
@@ -61,29 +64,34 @@ app.get('/callback', (req, res) => {
   .then(tokenResponse => {
     const { access_token, refresh_token } = tokenResponse.data;
 
-    const requestHeaders = {
+    const headers = {
       'Accept': 'application/json',
-      'Ocp-Apim-Subscription-Key': ACCESS_CONTROL_SUB_KEY,
+      'Ocp-Apim-Subscription-Key': access_control_sub_key,
       'Authorization': `Bearer ${access_token}`
     };
 
-    const requestParams = {
-      "device-id": DEVICE_ID
+    const params = {
+      "device-id": device_id
     };
 
     return axios({
       method: 'get',
-      url: requestUri,
-      headers: requestHeaders,
-      params: requestParams
+      url,
+      headers,
+      params,
     })
     .then(response => {
-      const residents = response.data.value;
-
+      const residents  = response.data.value;
+      
       res.render('index', {
-        residents: residents,
+        residents,
         access_token,
         refresh_token,
+        baseAuthUri,
+        scope,
+        redirect_uri,
+        refresh_uri,
+        client_id,
       });
     })
     .catch(err => console.log(`Hey! An error occurred. Check it outj: ${err}`));
@@ -98,9 +106,9 @@ app.get('/refresh', (req, res) => {
   const data = qs.stringify({
     grant_type: 'refresh_token',
     refresh_token,
-    redirect_uri: REDIRECT_URI,
-    client_id: CLIENT_ID,
-    client_secret: SECRET
+    redirect_uri,
+    client_id,
+    client_secret,
   });
 
   axios.post(
@@ -115,29 +123,34 @@ app.get('/refresh', (req, res) => {
   .then(tokenResponse => {
     const { access_token, refresh_token } = tokenResponse.data;
 
-    const requestHeaders = {
+    const headers = {
       'Accept': 'application/json',
-      'Ocp-Apim-Subscription-Key': ACCESS_CONTROL_SUB_KEY,
+      'Ocp-Apim-Subscription-Key': access_control_sub_key,
       'Authorization': `Bearer ${access_token}`
     };
 
-    const requestParams = {
-      "device-id": DEVICE_ID
+    const params = {
+      "device-id": device_id
     };
 
     return axios({
       method: 'get',
-      url: requestUri,
-      headers: requestHeaders,
-      params: requestParams
+      url,
+      headers,
+      params,
     })
     .then(response => {
       const residents = response.data.value;
 
       res.render('index', {
-        residents: residents,
+        residents,
         access_token,
         refresh_token,
+        baseAuthUri,
+        scope,
+        redirect_uri,
+        refresh_uri,
+        client_id,
       });
     })
     .catch(err => console.log(`Hey! An error occurred. Check it outj: ${err}`));
